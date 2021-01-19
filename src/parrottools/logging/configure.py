@@ -31,30 +31,35 @@ def clear_log_context() -> None:
     unbind_contextvars('__contextvars')
 
 
-def update_log_context(**kwargs) -> None:
+def update_log_context(**kwargs) -> Dict[str, Any]:
     ctx = _get_context().get("__contextvars", {})
+    original_ctx = ctx.copy()
     ctx.update(kwargs)
     bind_contextvars(__contextvars=ctx)
+    return original_ctx
 
 
 @contextmanager
 def log_context(**kwargs):
-    update_log_context(**kwargs)
-    yield
-    clear_log_context()
+    original_ctx = update_log_context(**kwargs)
+    try:
+        yield
+    finally:
+        bind_contextvars(__contextvars=original_ctx)
 
 
 def with_log_context(*context_kwargs):
     def decorator(function):
         def wrapper(*args, **kwargs):
             items = {arg: kwargs[arg] for arg in context_kwargs if arg in kwargs}
-            update_log_context(**items)
-            result = function(*args, **kwargs)
-            clear_log_context()
+            original_ctx = update_log_context(**items)
+            try:
+                result = function(*args, **kwargs)
+            finally:
+                bind_contextvars(__contextvars=original_ctx)
+
             return result
-
         return wrapper
-
     return decorator
 
 

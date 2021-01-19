@@ -25,5 +25,5 @@ make pre-commit-install
 Run all tests:
 
 ```bash
-make tests
+make test
 ```

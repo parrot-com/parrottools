@@ -46,6 +46,7 @@ def test_default(caplog, capsys):
     assert output["severityText"] == "ERROR"
     assert output["attributes"]["error.message"] == "Raised KeyError"
     assert output["attributes"]["error.stack_trace"].startswith("Traceback")
+    assert output["attributes"]["error.stack_trace"].endswith("KeyError: 'invalid key'")
 
     # Log with log_context context manager
     with log_context(key="value"):
@@ -78,7 +79,7 @@ def test_default(caplog, capsys):
     output = json.loads(captured.err)
     assert output["body"] == "Info"
     assert output["attributes"]["context.key"] == "value"
-    assert output["attributes"]["context.key"] == "value"
+    assert output["attributes"]["context.key2"] == "value2"
 
     # Log with clear_log_context
     clear_log_context()
@@ -158,6 +159,43 @@ def test_with_log_context_decorator(capsys):
     assert output["body"] == "Info"
     assert 'context.key' not in output["attributes"]
     assert 'context.key2' not in output["attributes"]
+
+    logger = logging.getLogger()
+    logger.handlers.pop()
+
+
+@with_log_context("key_exc")
+def _test_with_exception(logger, key_exc):
+    # Make sure this won't remove decorator context
+    with log_context(inside_exc="inside_val"):
+        pass
+
+    logger.info('Info')
+
+    with log_context(inside_exc="inside_val"):
+        raise Exception("exc")
+
+
+def test_with_exceptions(capsys):
+    configure_logging()
+    logger = logging.getLogger("test_with_exceptions")
+
+    try:
+        _test_with_exception(logger, key_exc="value_exc")
+    except Exception:
+        logging.exception("_test_with_exception")
+
+    captured = capsys.readouterr()
+    outputs = captured.err.splitlines()
+    output = json.loads(outputs[0])
+    assert output["body"] == "Info"
+    assert output["attributes"]['context.key_exc'] == "value_exc"
+    assert 'context.inside_exc' not in output["attributes"]
+
+    output = json.loads(outputs[1])
+    assert output["attributes"]["error.message"] == "_test_with_exception"
+    assert "context.key_exc" not in output["attributes"]
+    assert "context.inside_exc" not in output["attributes"]
 
     logger = logging.getLogger()
     logger.handlers.pop()
