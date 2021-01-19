@@ -49,11 +49,20 @@ def test_default(caplog, capsys):
 
     # Log with log_context context manager
     with log_context(key="value"):
-        logging.info("Info")
-        captured = capsys.readouterr()
-        output = json.loads(captured.err)
-        assert output["body"] == "Info"
-        assert output["attributes"]["context.key"] == "value"
+        with log_context(key2="value2"):
+            logging.info("Info")
+            captured = capsys.readouterr()
+            output = json.loads(captured.err)
+            assert output["body"] == "Info"
+            assert output["attributes"]["context.key"] == "value"
+            assert output["attributes"]["context.key2"] == "value2"
+
+    logging.info("Info")
+    captured = capsys.readouterr()
+    output = json.loads(captured.err)
+    assert output["body"] == "Info"
+    assert 'context.key' not in output["attributes"]
+    assert 'context.key2' not in output["attributes"]
 
     # Log with update_log_context
     update_log_context(key="value")
@@ -122,6 +131,11 @@ def test_with_service_envs(capsys):
 
 @with_log_context("key", "non-existing-key")
 def _test_with_log_context_decorator(logger, key):
+    __test_with_log_context_decorator(logger, key2="value2")
+
+
+@with_log_context("key2")
+def __test_with_log_context_decorator(logger, key2):
     logger.info("Info")
 
 
@@ -135,7 +149,15 @@ def test_with_log_context_decorator(capsys):
     output = json.loads(captured.err)
     assert output["body"] == "Info"
     assert output["attributes"]["context.key"] == "value"
+    assert output["attributes"]["context.key2"] == "value2"
     assert "non-existing-key" not in output["attributes"]
+
+    logger.info("Info")
+    captured = capsys.readouterr()
+    output = json.loads(captured.err)
+    assert output["body"] == "Info"
+    assert 'context.key' not in output["attributes"]
+    assert 'context.key2' not in output["attributes"]
 
     logger = logging.getLogger()
     logger.handlers.pop()

@@ -9,8 +9,8 @@ import structlog
 from structlog.contextvars import (
     _get_context,
     bind_contextvars,
-    clear_contextvars,
     merge_contextvars,
+    unbind_contextvars,
 )
 
 from parrottools.__version__ import __title__, __version__
@@ -28,7 +28,7 @@ SEVERITY_NUMBER_MAPPING = {
 
 
 def clear_log_context() -> None:
-    clear_contextvars()
+    unbind_contextvars('__contextvars')
 
 
 def update_log_context(**kwargs) -> None:
@@ -39,18 +39,19 @@ def update_log_context(**kwargs) -> None:
 
 @contextmanager
 def log_context(**kwargs):
-    clear_contextvars()
-    bind_contextvars(__contextvars=kwargs)
+    update_log_context(**kwargs)
     yield
+    clear_log_context()
 
 
 def with_log_context(*context_kwargs):
     def decorator(function):
         def wrapper(*args, **kwargs):
             items = {arg: kwargs[arg] for arg in context_kwargs if arg in kwargs}
-            clear_contextvars()
-            bind_contextvars(__contextvars=items)
-            return function(*args, **kwargs)
+            update_log_context(**items)
+            result = function(*args, **kwargs)
+            clear_log_context()
+            return result
 
         return wrapper
 
@@ -59,11 +60,11 @@ def with_log_context(*context_kwargs):
 
 class CustomProcessor:
     def __init__(
-        self,
-        service_name: Optional[str] = None,
-        service_version: Optional[str] = None,
-        deployment_env: Optional[str] = None,
-        sentry_enabled: bool = False,
+            self,
+            service_name: Optional[str] = None,
+            service_version: Optional[str] = None,
+            deployment_env: Optional[str] = None,
+            sentry_enabled: bool = False,
     ) -> None:
 
         # Application can specify this parameters when configuring the module.
@@ -115,7 +116,7 @@ class CustomProcessor:
         if self.deployment_env is not None:
             event_dict["resource"]["deployment.environment"] = self.deployment_env
 
-        hostname = os.environ.get("HOSTNAME", None)
+        hostname = os.environ.get("HOSTNAME", os.uname().nodename)
         if hostname is not None:
             event_dict["resource"]["host.name"] = hostname
 
@@ -143,12 +144,12 @@ class CustomProcessor:
 
 
 def configure_logging(
-    level: Union[str, int] = logging.INFO,
-    sentry_enabled: bool = False,
-    service_name: Optional[str] = None,
-    service_version: Optional[str] = None,
-    deployment_env: Optional[str] = None,
-    pretty_print: bool = False,
+        level: Union[str, int] = logging.INFO,
+        sentry_enabled: bool = False,
+        service_name: Optional[str] = None,
+        service_version: Optional[str] = None,
+        deployment_env: Optional[str] = None,
+        pretty_print: bool = False,
 ) -> None:
     """Configure logging for the project.
     Configure should be called before importing the logging module.
