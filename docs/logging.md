@@ -4,7 +4,7 @@
 ```python
 from parrottools.logging import configure_logging
 
-configure_logging(sentry_handler=True, service_name="App", service_version="0.1.0", deployment_env="staging")
+configure_logging(sentry_enabled=True, service_name="App", service_version="0.1.0", deployment_env="staging")
 ```
 
 ## Fields
@@ -23,7 +23,7 @@ INFO:2021-01-18T13:35:12.360920Z:__main__:Event CreateTask sent to topic transcr
 We can use:
 ```python
 # Structured logging message:
-logging.info("Failed to send event.", extra={"fields": {"event": event, "topic": topic}})
+logging.info("Event sent.", extra={"fields": {"event": event, "topic": topic}})
 
 {
     "timestamp": "2021-01-17T13:35:12.360920Z",

@@ -144,7 +144,7 @@ class CustomProcessor:
 
 def configure_logging(
     level: Union[str, int] = logging.INFO,
-    sentry_handler: bool = False,
+    sentry_enabled: bool = False,
     service_name: Optional[str] = None,
     service_version: Optional[str] = None,
     deployment_env: Optional[str] = None,
@@ -155,7 +155,7 @@ def configure_logging(
 
     Usage:
         from parrottools.logging import configure_logging
-        configure_logging(sentry_handler=False, service_name="App", service_version="0.1.0", deployment_env="staging")
+        configure_logging(sentry_enabled=False, service_name="App", service_version="0.1.0", deployment_env="staging")
 
         import logging
         logger = logging.getLogger(__name__)
@@ -167,7 +167,7 @@ def configure_logging(
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,
         structlog.processors.UnicodeDecoder(),
-        CustomProcessor(service_name, service_version, deployment_env, sentry_handler),
+        CustomProcessor(service_name, service_version, deployment_env, sentry_enabled),
     ]
 
     if pretty_print:
@@ -180,7 +180,7 @@ def configure_logging(
         foreign_pre_chain=foreign_pre_chain,
     )
 
-    if sentry_handler:
+    if sentry_enabled:
         sentry_sdk.init()
 
     stream_handler = logging.StreamHandler()
