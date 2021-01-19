@@ -44,9 +44,9 @@ def test_default(caplog, capsys):
     captured = capsys.readouterr()
     output = json.loads(captured.err)
     assert output["severityText"] == "ERROR"
-    assert output["attributes"]["error.message"] == "Raised KeyError"
-    assert output["attributes"]["error.stack_trace"].startswith("Traceback")
-    assert output["attributes"]["error.stack_trace"].endswith("KeyError: 'invalid key'")
+    assert output["attributes"]["exception.message"] == "Raised KeyError"
+    assert output["attributes"]["exception.stacktrace"].startswith("Traceback")
+    assert output["attributes"]["exception.stacktrace"].endswith("KeyError: 'invalid key'")
 
     # Log with log_context context manager
     with log_context(key="value"):
@@ -193,7 +193,7 @@ def test_with_exceptions(capsys):
     assert 'context.inside_exc' not in output["attributes"]
 
     output = json.loads(outputs[1])
-    assert output["attributes"]["error.message"] == "_test_with_exception"
+    assert output["attributes"]["exception.message"] == "_test_with_exception"
     assert "context.key_exc" not in output["attributes"]
     assert "context.inside_exc" not in output["attributes"]
 

@@ -130,8 +130,8 @@ class CustomProcessor:
         # In case of exc_info is added to logging.
         # Either using `logger.exception()` or `logger.error("...", exc_info=e)`.
         if "exception" in event_dict:
-            attributes["error.message"] = event_dict.pop("event")
-            attributes["error.stack_trace"] = event_dict.pop("exception")
+            attributes["exception.message"] = event_dict.pop("event")
+            attributes["exception.stacktrace"] = event_dict.pop("exception")
 
             # If sentry is enabled add event_dict as additional context.
             if self.sentry_enabled:

@@ -1,5 +1,42 @@
 # Logging
 
+## Data model
+
+Field Name     |Description
+---------------|--------------------------------------------
+timestamp      |Time when the event occurred.
+severityText   |The severity text (also known as log level).
+severityNumber |Numerical value of the severity.
+body           |The body of the log record.
+resource       |Describes the source of the log.
+attributes     |Additional information about the event.
+
+#### Body
+A value containing the body of the log record (see the description of any type above).
+Can be for example a human-readable string message (including multi-line)
+describing the event in a free form or it can be a structured data composed of arrays and maps of other values.
+Can vary for each occurrence of the event coming from the same source.
+
+#### Resource
+Resource                |Description
+------------------------|--------------------------------------------
+service.name            |Logical name of the service.
+service.version         |The version string of the service API or implementation.
+host.name               |Name of the host. On Unix systems, it may contain what the hostname command returns, or the fully qualified hostname, or another name specified by the user.
+deployment.environment  | Name of the deployment environment (aka deployment tier).
+telemetry.sdk.name      |The name of the telemetry SDK as defined above.
+telemetry.sdk.language  |The language of the telemetry SDK.
+telemetry.sdk.version   |The version string of the telemetry SDK.
+
+#### Attributes
+Attribute               |Description
+------------------------|--------------------------------------------
+code.function           |The method or function name, or equivalent.
+exception.message       |The exception message.
+exception.stacktrace    |A stacktrace as a string in the natural representation for the language runtime. The representation is to be determined and documented by each language SIG.
+context.<KEY>           |Custom key/value attribute with additional information provided explicitly inside code.
+
+
 ## Configure
 ```python
 from parrottools.logging import configure_logging
