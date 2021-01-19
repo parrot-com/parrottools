@@ -59,17 +59,19 @@ def with_log_context(*context_kwargs):
                 bind_contextvars(__contextvars=original_ctx)
 
             return result
+
         return wrapper
+
     return decorator
 
 
 class CustomProcessor:
     def __init__(
-            self,
-            service_name: Optional[str] = None,
-            service_version: Optional[str] = None,
-            deployment_env: Optional[str] = None,
-            sentry_enabled: bool = False,
+        self,
+        service_name: Optional[str] = None,
+        service_version: Optional[str] = None,
+        deployment_env: Optional[str] = None,
+        sentry_enabled: bool = False,
     ) -> None:
 
         # Application can specify this parameters when configuring the module.
@@ -149,12 +151,12 @@ class CustomProcessor:
 
 
 def configure_logging(
-        level: Union[str, int] = logging.INFO,
-        sentry_enabled: bool = False,
-        service_name: Optional[str] = None,
-        service_version: Optional[str] = None,
-        deployment_env: Optional[str] = None,
-        pretty_print: bool = False,
+    level: Union[str, int] = logging.INFO,
+    sentry_enabled: bool = False,
+    service_name: Optional[str] = None,
+    service_version: Optional[str] = None,
+    deployment_env: Optional[str] = None,
+    pretty_print: bool = False,
 ) -> None:
     """Configure logging for the project.
     Configure should be called before importing the logging module.
