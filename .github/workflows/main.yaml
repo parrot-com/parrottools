@@ -21,7 +21,7 @@ jobs:
       - name: Run tests - ${{ matrix.python-version }}
         run: make test
 
-	lint:
+  lint:
     name: Python ${{ matrix.python-version }} - ${{ matrix.os }}
     runs-on: ubuntu-latest
     steps:
