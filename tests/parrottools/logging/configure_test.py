@@ -25,7 +25,7 @@ def test_default(caplog, capsys):
     logger.info("Info")
     captured = capsys.readouterr()
     output = json.loads(captured.err)
-    assert output["body"] == "Info"
+    assert output["body"]["message"] == "Info"
     assert output["severityText"] == "INFO"
 
     # Log info with fields
@@ -54,14 +54,14 @@ def test_default(caplog, capsys):
             logging.info("Info")
             captured = capsys.readouterr()
             output = json.loads(captured.err)
-            assert output["body"] == "Info"
+            assert output["body"]["message"] == "Info"
             assert output["attributes"]["context.key"] == "value"
             assert output["attributes"]["context.key2"] == "value2"
 
     logging.info("Info")
     captured = capsys.readouterr()
     output = json.loads(captured.err)
-    assert output["body"] == "Info"
+    assert output["body"]["message"] == "Info"
     assert 'context.key' not in output["attributes"]
     assert 'context.key2' not in output["attributes"]
 
@@ -70,14 +70,14 @@ def test_default(caplog, capsys):
     logger.info("Info")
     captured = capsys.readouterr()
     output = json.loads(captured.err)
-    assert output["body"] == "Info"
+    assert output["body"]["message"] == "Info"
     assert output["attributes"]["context.key"] == "value"
 
     update_log_context(key2="value2")
     logger.info("Info")
     captured = capsys.readouterr()
     output = json.loads(captured.err)
-    assert output["body"] == "Info"
+    assert output["body"]["message"] == "Info"
     assert output["attributes"]["context.key"] == "value"
     assert output["attributes"]["context.key2"] == "value2"
 
@@ -86,7 +86,7 @@ def test_default(caplog, capsys):
     logger.info("Info")
     captured = capsys.readouterr()
     output = json.loads(captured.err)
-    assert output["body"] == "Info"
+    assert output["body"]["message"] == "Info"
     assert output["attributes"] == {"code.function": "test"}
 
     logger = logging.getLogger()
@@ -100,7 +100,7 @@ def test_with_service_params(capsys):
     logger.info("Info")
     captured = capsys.readouterr()
     output = json.loads(captured.err)
-    assert output["body"] == "Info"
+    assert output["body"]["message"] == "Info"
     assert output["resource"]["service.name"] == "Test"
     assert output["resource"]["service.version"] == "0.0.0"
     assert output["resource"]["deployment.environment"] == "testing"
@@ -121,7 +121,7 @@ def test_with_service_envs(capsys):
 
     captured = capsys.readouterr()
     output = json.loads(captured.err)
-    assert output["body"] == "Info"
+    assert output["body"]["message"] == "Info"
     assert output["resource"]["service.name"] == "TestEnv"
     assert output["resource"]["service.version"] == "0.0.0"
     assert output["resource"]["deployment.environment"] == "testing"
@@ -148,7 +148,7 @@ def test_with_log_context_decorator(capsys):
 
     captured = capsys.readouterr()
     output = json.loads(captured.err)
-    assert output["body"] == "Info"
+    assert output["body"]["message"] == "Info"
     assert output["attributes"]["context.key"] == "value"
     assert output["attributes"]["context.key2"] == "value2"
     assert "non-existing-key" not in output["attributes"]
@@ -156,7 +156,7 @@ def test_with_log_context_decorator(capsys):
     logger.info("Info")
     captured = capsys.readouterr()
     output = json.loads(captured.err)
-    assert output["body"] == "Info"
+    assert output["body"]["message"] == "Info"
     assert 'context.key' not in output["attributes"]
     assert 'context.key2' not in output["attributes"]
 
@@ -188,7 +188,7 @@ def test_with_exceptions(capsys):
     captured = capsys.readouterr()
     outputs = captured.err.splitlines()
     output = json.loads(outputs[0])
-    assert output["body"] == "Info"
+    assert output["body"]["message"] == "Info"
     assert output["attributes"]['context.key_exc'] == "value_exc"
     assert 'context.inside_exc' not in output["attributes"]
 

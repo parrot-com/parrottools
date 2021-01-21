@@ -145,7 +145,7 @@ class CustomProcessor:
             fields["message"] = event_dict.pop("event")
             event_dict["body"] = fields
         elif "event" in event_dict:
-            event_dict["body"] = event_dict.pop("event")
+            event_dict["body"] = {"message": event_dict.pop("event")}
 
         return event_dict
 
