@@ -12,10 +12,11 @@ resource       |Describes the source of the log.
 attributes     |Additional information about the event.
 
 #### Body
-A value containing the body of the log record (see the description of any type above).
-Can be for example a human-readable string message (including multi-line)
-describing the event in a free form or it can be a structured data composed of arrays and maps of other values.
-Can vary for each occurrence of the event coming from the same source.
+
+Field name      | Description
+----------------|--------------------------------------------
+message         | Human-readable string message describing the event.
+\<1..N KEYS\>   | Structured data composed of arrays and maps of other values.
 
 #### Resource
 Resource                |Description
@@ -34,7 +35,7 @@ Attribute               |Description
 code.function           |The method or function name, or equivalent.
 exception.message       |The exception message.
 exception.stacktrace    |A stacktrace as a string in the natural representation for the language runtime. The representation is to be determined and documented by each language SIG.
-context.<KEY>           |Custom key/value attribute with additional information provided explicitly inside code.
+context.\<KEY\>         |Custom key/value attribute with additional information provided explicitly inside code.
 
 
 ## Configure
