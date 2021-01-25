@@ -15,6 +15,8 @@ from structlog.contextvars import (
 
 from parrottools.__version__ import __title__, __version__
 
+# Following OpenTelemetry Data Model
+# https://github.com/open-telemetry/opentelemetry-specification/blob/master/specification/logs/data-model.md#displaying-severity
 SEVERITY_NUMBER_MAPPING = {
     "TRACE": 1,
     "DEBUG": 5,
