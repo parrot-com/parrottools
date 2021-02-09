@@ -102,6 +102,29 @@ except KeyError as e:
     logger.error("Failed to do something", exc_info=e)
 ```
 
+This will result in message like:
+
+```json
+{
+  "timestamp": "2021-02-09T13:18:42.666467Z",
+  "severityText": "ERROR",
+  "severityNumber": 17,
+  "attributes": {
+    "code.function": "root",
+    "exception.message": "Failed to do something.",
+    "exception.stacktrace": "Traceback (most recent call last):\n  File \"main.py\", line 19, in <module>\n    raise Exception(\"My exception!\")\nException: My exception!"
+  },
+  "resource": {
+    "service.name": "App",
+    "telemetry.sdk.name": "parrottools",
+    "telemetry.sdk.version": "0.1.0",
+    "telemetry.sdk.language": "python",
+    "host.name": "MacBook-Pro.local"
+  }
+}
+
+```
+
 ## With Log Context
 
 ```python
