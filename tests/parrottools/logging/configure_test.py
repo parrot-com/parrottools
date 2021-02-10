@@ -140,9 +140,26 @@ def __test_with_log_context_decorator(logger, key2):
     logger.info("Info")
 
 
+@with_log_context()
+def decorated_function():
+    """
+    Test docstring
+    """
+    pass
+
+
 def test_with_log_context_decorator(capsys):
     configure_logging()
     logger = logging.getLogger("test_with_log_context_decorator")
+
+    assert decorated_function.__name__ == "decorated_function"
+    assert decorated_function.__module__ == "configure_test"
+    assert (
+        decorated_function.__doc__
+        == """
+    Test docstring
+    """
+    )
 
     _test_with_log_context_decorator(logger, key="value")
 
