@@ -2,6 +2,7 @@ import json
 import logging
 import os
 from contextlib import contextmanager
+from functools import wraps
 from typing import Any, Dict, Optional, Union
 
 import sentry_sdk
@@ -52,6 +53,7 @@ def log_context(**kwargs):
 
 def with_log_context(*context_kwargs):
     def decorator(function):
+        @wraps(function)
         def wrapper(*args, **kwargs):
             items = {arg: kwargs[arg] for arg in context_kwargs if arg in kwargs}
             original_ctx = update_log_context(**items)
