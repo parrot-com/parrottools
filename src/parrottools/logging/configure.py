@@ -1,3 +1,4 @@
+import contextvars
 import json
 import logging
 import os
@@ -8,9 +9,8 @@ from typing import Any, Dict, Optional, Union
 import sentry_sdk
 import structlog
 from structlog.contextvars import (
-    _get_context,
+    STRUCTLOG_KEY_PREFIX,
     bind_contextvars,
-    merge_contextvars,
     unbind_contextvars,
 )
 
@@ -28,17 +28,25 @@ SEVERITY_NUMBER_MAPPING = {
     "FATAL": 21,
     "CRITICAL": 21,
 }
+CONTEXTVARS_KEY = "__contextvars"
 
 
 def clear_log_context() -> None:
-    unbind_contextvars('__contextvars')
+    unbind_contextvars(CONTEXTVARS_KEY)
 
 
 def update_log_context(**kwargs) -> Dict[str, Any]:
-    ctx = _get_context().get("__contextvars", {})
-    original_ctx = ctx.copy()
-    ctx.update(kwargs)
-    bind_contextvars(__contextvars=ctx)
+    original_ctx = {}
+    # Structlog is using Python native contextvars library.
+    # This is currently only way how to access Structlog context variables outside megre_contextvars method.
+    for key, val in contextvars.copy_context().items():
+        if key.name == f'{STRUCTLOG_KEY_PREFIX}{CONTEXTVARS_KEY}' and val is not Ellipsis:
+            original_ctx = val
+            break
+
+    new_context = original_ctx.copy()
+    new_context.update(kwargs)
+    bind_contextvars(__contextvars=new_context)
     return original_ctx
 
 
@@ -107,8 +115,8 @@ class CustomProcessor:
         # Additional information about the specific event occurrence.
         attributes = {"code.function": event_dict.pop("logger", "")}
 
-        if "__contextvars" in event_dict:
-            for k, v in event_dict.pop("__contextvars", {}).items():
+        if CONTEXTVARS_KEY in event_dict:
+            for k, v in event_dict.pop(CONTEXTVARS_KEY, {}).items():
                 attributes[f"context.{k}"] = v
 
         event_dict["attributes"] = attributes
@@ -173,7 +181,7 @@ def configure_logging(
         logger = logging.getLogger(__name__)
     """
     foreign_pre_chain = [
-        merge_contextvars,
+        structlog.contextvars.merge_contextvars,
         structlog.stdlib.add_logger_name,
         structlog.processors.TimeStamper(fmt="iso"),
         structlog.processors.StackInfoRenderer(),
