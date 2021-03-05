@@ -200,9 +200,6 @@ def configure_logging(
         foreign_pre_chain=foreign_pre_chain,
     )
 
-    if sentry_enabled:
-        sentry_sdk.init()
-
     stream_handler = logging.StreamHandler()
     stream_handler.setLevel(level)
     stream_handler.setFormatter(formatter)
