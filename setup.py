@@ -20,14 +20,15 @@ setup(
     long_description_content_type="text/markdown",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
-    python_requires=">=3.7",
+    python_requires=">=3.6",
     classifiers=[
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
     ],
-    install_requires=["structlog~=21.1.0", "sentry-sdk~=0.19.5"],
+    install_requires=["structlog~=21.1.0", "sentry-sdk~=0.19.5", 'contextvars~=2.4;python_version<"3.7"'],
     extras_require={
         "tests": ["pytest>=6.2.1"],
         "dev": ["pytest>=6.2.1", "pre-commit>=2.9.3"],
